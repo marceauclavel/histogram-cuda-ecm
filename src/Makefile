@@ -283,8 +283,15 @@ serial: serial.c
 run: build
 	$(EXEC) ./template
 
+test: serial template
+	$(EXEC) ./serial -i ../test/words_alpha.txt -o serialOut.csv
+	$(EXEC) ./template -i ../test/words_alpha.txt -o templateOut.csv
+	$(EXEC) diff serialOut.csv ../test/words_alpha.csv
+	$(EXEC) diff templateOut.csv ../test/words_alpha.csv
+
+
 clean:
-	rm -f template template.o serial
+	rm -f template template.o serial serialOut.csv templateOut.csv
 	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/template
 
 clobber: clean
