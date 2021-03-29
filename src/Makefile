@@ -260,7 +260,7 @@ endif
 # Target rules
 all: build
 
-build: template
+build: template serial
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -277,11 +277,14 @@ template: template.o
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
+serial: serial.c
+	$(EXEC) gcc serial.c -o serial
+
 run: build
 	$(EXEC) ./template
 
 clean:
-	rm -f template template.o
+	rm -f template template.o serial
 	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/template
 
 clobber: clean
