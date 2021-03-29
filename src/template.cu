@@ -10,6 +10,16 @@
 #define ASCIIMIN 32
 #define ASCIIMAX 126
 
+void __global__ kernel(char* dev_chars, int nChars, int* dev_counts, int nCounts) {
+	const unsigned int tidb = threadIdx.x;
+	const unsigned int ti = blockIdx.x*blockDim.x + tidb;
+
+	if (ti < nChars) {
+		int ascii = (int)dev_chars[ti];
+		atomicAdd(&dev_counts[ascii - ASCIIMIN], 1);
+	}
+}
+
 int isValid(char* c){
 	int asciicode = (int)*c;
 	int valid = (asciicode <= 126);
@@ -101,6 +111,10 @@ int main(int argc, char** argv){
 		int ascii = (int)chars[i];
 		++counts[ascii - ASCIIMIN];
 	}
+
+	kernel<<<nChars, 1>>>(dev_chars, nChars, dev_counts, nCounts);
+
+	cudaMemcpy(counts, dev_counts, nCounts * sizeof(int), cudaMemcpyDeviceToHost);
 
 	t2 = clock() - t2;
 
