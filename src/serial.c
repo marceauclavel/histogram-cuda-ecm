@@ -75,7 +75,7 @@ int main(int argc, char **argv){
 	outputFile = fopen(outputFileName, "w+");
 	if (!outputFile) return 1;
 	for (int i = 0; i < 127 - ASCIIMIN; ++i){
-		if (i + ASCIIMIN < 65 || i + ASCIIMIN > 91) {
+		if (i + ASCIIMIN < 65 || i + ASCIIMIN > 90) {
 			fprintf(outputFile, "%c:%d\n", (char)(i + ASCIIMIN), (int)counts[i]);
 		}
 	}
