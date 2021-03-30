@@ -17,9 +17,27 @@ void __global__ kernel(char* dev_chars, int nChars, int* dev_counts, int nCounts
 	const unsigned int tidb = threadIdx.x;
 	const unsigned int ti = blockIdx.x*blockDim.x + tidb;
 
+	__shared__ int shared_counts[ASCIIMAX - ASCIIMIN + 1];
+
+	if (tidb == 0) {
+		for (int i = 0; i < ASCIIMAX - ASCIIMIN - 1; ++i) {
+			shared_counts[i] = 0;
+		}
+	}
+
+	__syncthreads();
+
 	if (ti < nChars) {
 		int ascii = (int)dev_chars[ti];
-		atomicAdd(&dev_counts[ascii - ASCIIMIN], 1);
+		atomicAdd(&shared_counts[ascii - ASCIIMIN], 1);
+	}
+
+	__syncthreads();
+
+	if (tidb == 0) {
+		for (int i = 0; i < nCounts; ++i) {
+			atomicAdd(&dev_counts[i], shared_counts[i]);
+		}
 	}
 }
 
