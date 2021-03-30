@@ -10,6 +10,9 @@
 #define ASCIIMIN 32
 #define ASCIIMAX 126
 
+#define CHARS_PER_THREAD 256
+#define THREADS_PER_BLOCK 256
+
 void __global__ kernel(char* dev_chars, int nChars, int* dev_counts, int nCounts) {
 	const unsigned int tidb = threadIdx.x;
 	const unsigned int ti = blockIdx.x*blockDim.x + tidb;
@@ -112,7 +115,7 @@ int main(int argc, char** argv){
 		++counts[ascii - ASCIIMIN];
 	}
 
-	kernel<<<nChars, 1>>>(dev_chars, nChars, dev_counts, nCounts);
+	kernel<<<(nChars + THREADS_PER_BLOCK - 1 ) / THREADS_PER_BLOCK, THREADS_PER_BLOCK>>>(dev_chars, nChars, dev_counts, nCounts);
 
 	cudaMemcpy(counts, dev_counts, nCounts * sizeof(int), cudaMemcpyDeviceToHost);
 
